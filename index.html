@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>每日营养速算 · 4:4:2 黄金比例</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#EEF1E6;
+    --surface:#FFFFFF;
+    --surface-soft:#F7F8F2;
+    --ink:#23301F;
+    --ink-soft:#5B6A55;
+    --ink-faint:#8C9787;
+    --line:#D9DFC9;
+    --brand:#33502E;
+    --brand-soft:#E4EADB;
+    --carb:#C68A2E;
+    --carb-soft:#F6E9D2;
+    --protein:#A8324A;
+    --protein-soft:#F3DCE1;
+    --fat:#8C5A2B;
+    --fat-soft:#EFE0CE;
+    --warn:#B5502A;
+    --warn-soft:#F7E3D6;
+    --radius-s:6px;
+    --radius-m:10px;
+    --serif:'Fraunces', Georgia, serif;
+    --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--brand-soft);}
+  a{color:var(--brand);}
+
+  :focus-visible{
+    outline:2px solid var(--brand);
+    outline-offset:2px;
+  }
+
+  .wrap{
+    max-width:720px;
+    margin:0 auto;
+    padding:56px 24px 96px;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{margin-bottom:56px;}
+  .kicker{
+    font-size:13px;
+    color:var(--ink-soft);
+    letter-spacing:0.02em;
+    margin:0 0 14px;
+  }
+  .ratio-title{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:clamp(34px, 7vw, 52px);
+    line-height:1.15;
+    margin:0 0 22px;
+    color:var(--ink);
+  }
+  .ratio-title .num{color:var(--brand);}
+
+  .ratio-bar{
+    display:flex;
+    width:100%;
+    height:14px;
+    border-radius:999px;
+    overflow:hidden;
+    border:1px solid var(--line);
+    margin-bottom:10px;
+  }
+  .ratio-bar span{display:block;height:100%;}
+  .seg-carb{width:40%;background:var(--carb);}
+  .seg-protein{width:40%;background:var(--protein);}
+  .seg-fat{width:20%;background:var(--fat);}
+
+  .ratio-legend{
+    display:flex;
+    gap:20px;
+    flex-wrap:wrap;
+    font-size:13px;
+    color:var(--ink-soft);
+    margin-bottom:26px;
+  }
+  .ratio-legend .dot{
+    display:inline-block;
+    width:8px;height:8px;
+    border-radius:50%;
+    margin-right:6px;
+  }
+  .dot-carb{background:var(--carb);}
+  .dot-protein{background:var(--protein);}
+  .dot-fat{background:var(--fat);}
+
+  .hero p{
+    font-size:15.5px;
+    color:var(--ink-soft);
+    max-width:60ch;
+    margin:0 0 10px;
+  }
+  .hero p.lede{color:var(--ink);}
+
+  /* ---------- Sections ---------- */
+  .section-title{
+    font-size:12px;
+    color:var(--ink-faint);
+    margin:0 0 4px;
+  }
+  .section-heading{
+    font-family:var(--serif);
+    font-size:22px;
+    font-weight:600;
+    margin:0 0 24px;
+  }
+
+  form{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius-m);
+    padding:28px 24px;
+  }
+
+  .field{margin-bottom:24px;}
+  .field:last-child{margin-bottom:0;}
+  label.field-label{
+    display:block;
+    font-size:14px;
+    font-weight:600;
+    color:var(--ink);
+    margin-bottom:10px;
+  }
+  .field-hint{
+    font-size:12.5px;
+    color:var(--ink-faint);
+    margin-top:6px;
+  }
+
+  /* gender toggle */
+  .toggle-group{
+    display:flex;
+    gap:10px;
+  }
+  .toggle-group input{position:absolute;opacity:0;pointer-events:none;}
+  .toggle-group label{
+    flex:1;
+    text-align:center;
+    padding:12px 0;
+    border:1px solid var(--line);
+    border-radius:var(--radius-s);
+    font-size:14px;
+    color:var(--ink-soft);
+    cursor:pointer;
+    transition:border-color .15s, color .15s, background .15s;
+  }
+  .toggle-group input:checked + label{
+    border-color:var(--brand);
+    color:var(--brand);
+    background:var(--brand-soft);
+    font-weight:600;
+  }
+
+  /* number inputs grid */
+  .grid-2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+  }
+  .num-field{position:relative;}
+  .num-field input{
+    width:100%;
+    padding:12px 44px 12px 14px;
+    border:1px solid var(--line);
+    border-radius:var(--radius-s);
+    font-size:15px;
+    color:var(--ink);
+    background:var(--surface-soft);
+    font-family:var(--sans);
+  }
+  .num-field input:focus{
+    background:var(--surface);
+    border-color:var(--brand);
+  }
+  .num-field .unit{
+    position:absolute;
+    right:14px;
+    top:50%;
+    transform:translateY(-50%);
+    font-size:13px;
+    color:var(--ink-faint);
+    pointer-events:none;
+  }
+
+  /* activity cards */
+  .activity-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .activity-list input{position:absolute;opacity:0;pointer-events:none;}
+  .activity-card{
+    display:block;
+    border:1px solid var(--line);
+    border-left:3px solid var(--line);
+    border-radius:var(--radius-s);
+    padding:12px 14px;
+    cursor:pointer;
+    transition:border-color .15s, background .15s;
+  }
+  .activity-card .a-title{
+    font-size:14px;
+    font-weight:600;
+    color:var(--ink);
+    margin-bottom:3px;
+  }
+  .activity-card .a-desc{
+    font-size:12.5px;
+    color:var(--ink-soft);
+  }
+  .activity-list input:checked + .activity-card{
+    border-color:var(--brand);
+    border-left-color:var(--brand);
+    background:var(--brand-soft);
+  }
+
+  /* deficit slider */
+  .deficit-value{
+    font-family:var(--serif);
+    font-size:26px;
+    font-weight:600;
+    color:var(--brand);
+    margin-bottom:10px;
+  }
+  input[type="range"]{
+    width:100%;
+    -webkit-appearance:none;
+    appearance:none;
+    height:4px;
+    border-radius:999px;
+    background:var(--line);
+    margin:10px 0;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    appearance:none;
+    width:20px;height:20px;
+    border-radius:50%;
+    background:var(--brand);
+    border:3px solid var(--surface);
+    box-shadow:0 0 0 1px var(--brand);
+    cursor:pointer;
+  }
+  input[type="range"]::-moz-range-thumb{
+    width:20px;height:20px;
+    border-radius:50%;
+    background:var(--brand);
+    border:3px solid var(--surface);
+    box-shadow:0 0 0 1px var(--brand);
+    cursor:pointer;
+  }
+  .range-labels{
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+    color:var(--ink-faint);
+  }
+
+  .cta{
+    width:100%;
+    margin-top:8px;
+    padding:15px 0;
+    background:var(--brand);
+    color:#fff;
+    border:none;
+    border-radius:var(--radius-s);
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+    font-family:var(--sans);
+    transition:background .15s;
+  }
+  .cta:hover{background:#28401f;}
+
+  .error-msg{
+    font-size:13px;
+    color:var(--warn);
+    margin-top:14px;
+    display:none;
+  }
+
+  /* ---------- Results ---------- */
+  #results{
+    margin-top:48px;
+    display:none;
+  }
+
+  .warn-banner{
+    display:none;
+    background:var(--warn-soft);
+    border:1px solid var(--warn);
+    color:var(--warn);
+    border-radius:var(--radius-s);
+    padding:12px 16px;
+    font-size:13.5px;
+    margin-bottom:24px;
+  }
+
+  .stat-row{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:12px;
+    margin-bottom:28px;
+  }
+  .stat-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius-s);
+    padding:16px 14px;
+    text-align:left;
+  }
+  .stat-card.primary{
+    background:var(--brand);
+    border-color:var(--brand);
+  }
+  .stat-card .s-label{
+    font-size:12px;
+    color:var(--ink-faint);
+    margin-bottom:6px;
+  }
+  .stat-card.primary .s-label{color:#C9D6C1;}
+  .stat-card .s-value{
+    font-family:var(--serif);
+    font-size:24px;
+    font-weight:600;
+    color:var(--ink);
+  }
+  .stat-card.primary .s-value{color:#fff;}
+  .stat-card .s-unit{
+    font-size:12px;
+    font-weight:400;
+    color:var(--ink-faint);
+    margin-left:2px;
+  }
+  .stat-card.primary .s-unit{color:#C9D6C1;}
+
+  .kcal-bar{
+    display:flex;
+    width:100%;
+    height:10px;
+    border-radius:999px;
+    overflow:hidden;
+    margin-bottom:24px;
+  }
+  .kcal-bar span{display:block;height:100%;}
+
+  .macro-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:12px;
+    margin-bottom:8px;
+  }
+  .macro-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-top:3px solid var(--line);
+    border-radius:var(--radius-s);
+    padding:16px 14px;
+  }
+  .macro-card.carb{border-top-color:var(--carb);}
+  .macro-card.protein{border-top-color:var(--protein);}
+  .macro-card.fat{border-top-color:var(--fat);}
+  .macro-card .m-name{
+    font-size:13px;
+    font-weight:600;
+    margin-bottom:8px;
+  }
+  .macro-card.carb .m-name{color:var(--carb);}
+  .macro-card.protein .m-name{color:var(--protein);}
+  .macro-card.fat .m-name{color:var(--fat);}
+  .macro-card .m-grams{
+    font-family:var(--serif);
+    font-size:22px;
+    font-weight:600;
+    color:var(--ink);
+    margin-bottom:4px;
+  }
+  .macro-card .m-grams .m-unit{
+    font-size:13px;
+    font-weight:400;
+    color:var(--ink-faint);
+  }
+  .macro-card .m-food{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:8px;
+    padding-top:8px;
+    border-top:1px dashed var(--line);
+  }
+  .macro-card .m-food b{color:var(--ink);font-weight:600;}
+
+  .disclaimer{
+    font-size:12.5px;
+    color:var(--ink-faint);
+    margin-top:28px;
+    padding-top:20px;
+    border-top:1px solid var(--line);
+  }
+
+  @media (max-width:520px){
+    .wrap{padding:36px 18px 72px;}
+    .grid-2{grid-template-columns:1fr;}
+    .stat-row{grid-template-columns:1fr;}
+    .macro-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- Hero -->
+  <section class="hero">
+    <p class="kicker">每日营养速算</p>
+    <h1 class="ratio-title">碳水 <span class="num">4</span> ： 蛋白质 <span class="num">4</span> ： 脂肪 <span class="num">2</span></h1>
+    <div class="ratio-bar" aria-hidden="true">
+      <span class="seg-carb"></span><span class="seg-protein"></span><span class="seg-fat"></span>
+    </div>
+    <div class="ratio-legend">
+      <span><i class="dot dot-carb"></i>碳水 40%</span>
+      <span><i class="dot dot-protein"></i>蛋白质 40%</span>
+      <span><i class="dot dot-fat"></i>脂肪 20%</span>
+    </div>
+    <p class="lede">这套黄金比例适合绝大多数人：保肌肉、稳姨妈，兼顾饱腹与情绪。</p>
+    <p>高蛋白强饱腹，碳水稳情绪，脂肪保通便、稳激素——安全，也容易长期坚持。</p>
+  </section>
+
+  <!-- Form -->
+  <section>
+    <p class="section-title">第一步</p>
+    <h2 class="section-heading">填写你的基础信息</h2>
+
+    <form id="calc-form" novalidate>
+
+      <div class="field">
+        <label class="field-label">性别</label>
+        <div class="toggle-group">
+          <input type="radio" id="gender-male" name="gender" value="male" checked>
+          <label for="gender-male">男</label>
+          <input type="radio" id="gender-female" name="gender" value="female">
+          <label for="gender-female">女</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="grid-2">
+          <div>
+            <label class="field-label" for="height">身高</label>
+            <div class="num-field">
+              <input type="number" id="height" inputmode="decimal" min="100" max="230" placeholder="165">
+              <span class="unit">cm</span>
+            </div>
+          </div>
+          <div>
+            <label class="field-label" for="weight">体重</label>
+            <div class="num-field">
+              <input type="number" id="weight" inputmode="decimal" min="30" max="200" placeholder="55">
+              <span class="unit">kg</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="age">年龄</label>
+        <div class="num-field" style="max-width:200px;">
+          <input type="number" id="age" inputmode="numeric" min="10" max="90" step="1" placeholder="28">
+          <span class="unit">岁</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">运动量</label>
+        <div class="activity-list">
+
+          <input type="radio" id="act-1" name="activity" value="1.2" checked>
+          <label class="activity-card" for="act-1">
+            <div class="a-title">久坐不动</div>
+            <div class="a-desc">极少或没有运动量，长时间坐着、躺着。</div>
+          </label>
+
+          <input type="radio" id="act-2" name="activity" value="1.375">
+          <label class="activity-card" for="act-2">
+            <div class="a-title">轻度活动</div>
+            <div class="a-desc">每周进行 1-3 天的轻度运动 / 锻炼。</div>
+          </label>
+
+          <input type="radio" id="act-3" name="activity" value="1.55">
+          <label class="activity-card" for="act-3">
+            <div class="a-title">中度活动</div>
+            <div class="a-desc">每周进行 3-5 天的中等强度运动。</div>
+          </label>
+
+          <input type="radio" id="act-4" name="activity" value="1.725">
+          <label class="activity-card" for="act-4">
+            <div class="a-title">高度活跃</div>
+            <div class="a-desc">每周进行 6-7 天高强度运动或体力劳动。</div>
+          </label>
+
+          <input type="radio" id="act-5" name="activity" value="1.9">
+          <label class="activity-card" for="act-5">
+            <div class="a-title">极高强度</div>
+            <div class="a-desc">专业运动员、重体力劳动者。</div>
+          </label>
+
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="deficit">热量缺口</label>
+        <div class="deficit-value"><span id="deficit-display">250</span> <span style="font-size:15px;color:var(--ink-faint);">大卡 / 天</span></div>
+        <input type="range" id="deficit" min="0" max="500" step="50" value="250">
+        <div class="range-labels"><span>0 大卡</span><span>500 大卡</span></div>
+        <p class="field-hint">缺口不建议超过每日总消耗的 15%，过大的缺口不利于长期坚持。</p>
+      </div>
+
+      <button type="submit" class="cta">计算我的每日目标</button>
+      <p class="error-msg" id="error-msg">请检查身高、体重、年龄，填写合理的数值后再计算。</p>
+
+    </form>
+  </section>
+
+  <!-- Results -->
+  <section id="results">
+    <p class="section-title">第二步</p>
+    <h2 class="section-heading">你的每日营养配额</h2>
+
+    <div class="warn-banner" id="warn-banner"></div>
+
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="s-label">基础代谢 BMR</div>
+        <div class="s-value" id="r-bmr">–<span class="s-unit">kcal</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="s-label">每日总消耗 TDEE</div>
+        <div class="s-value" id="r-tdee">–<span class="s-unit">kcal</span></div>
+      </div>
+      <div class="stat-card primary">
+        <div class="s-label">每日目标摄入</div>
+        <div class="s-value" id="r-target">–<span class="s-unit">kcal</span></div>
+      </div>
+    </div>
+
+    <div class="kcal-bar" aria-hidden="true">
+      <span class="seg-carb" style="width:40%"></span><span class="seg-protein" style="width:40%"></span><span class="seg-fat" style="width:20%"></span>
+    </div>
+
+    <div class="macro-grid">
+      <div class="macro-card carb">
+        <div class="m-name">碳水化合物</div>
+        <div class="m-grams" id="r-carb">–<span class="m-unit"> g</span></div>
+        <div class="m-food">参考原始食物重量约 <b id="r-carb-food">–</b> g<br>（按碳水占比 75% 估算，如大米）</div>
+      </div>
+      <div class="macro-card protein">
+        <div class="m-name">蛋白质</div>
+        <div class="m-grams" id="r-protein">–<span class="m-unit"> g</span></div>
+        <div class="m-food">参考原始食物重量约 <b id="r-protein-food">–</b> g<br>（按蛋白质占比 20% 估算，如鸡胸肉）</div>
+      </div>
+      <div class="macro-card fat">
+        <div class="m-name">脂肪</div>
+        <div class="m-grams" id="r-fat">–<span class="m-unit"> g</span></div>
+      </div>
+    </div>
+
+    <p class="disclaimer">以上数值基于常用营养公式估算，仅供参考，不能替代医生或注册营养师给出的个性化建议。孕期、哺乳期或患有慢性疾病者，请务必先咨询专业人士。</p>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  const form = document.getElementById('calc-form');
+  const deficitInput = document.getElementById('deficit');
+  const deficitDisplay = document.getElementById('deficit-display');
+  const results = document.getElementById('results');
+  const errorMsg = document.getElementById('error-msg');
+  const warnBanner = document.getElementById('warn-banner');
+
+  deficitInput.addEventListener('input', function(){
+    deficitDisplay.textContent = deficitInput.value;
+  });
+
+  function round(n){ return Math.round(n); }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+
+    const gender = form.querySelector('input[name="gender"]:checked').value;
+    const height = parseFloat(document.getElementById('height').value);
+    const weight = parseFloat(document.getElementById('weight').value);
+    const age = parseInt(document.getElementById('age').value, 10);
+    const activity = parseFloat(form.querySelector('input[name="activity"]:checked').value);
+    const deficit = parseFloat(deficitInput.value);
+
+    const valid =
+      Number.isFinite(height) && height >= 100 && height <= 230 &&
+      Number.isFinite(weight) && weight >= 30 && weight <= 200 &&
+      Number.isInteger(age) && age >= 10 && age <= 90;
+
+    if(!valid){
+      errorMsg.style.display = 'block';
+      results.style.display = 'none';
+      return;
+    }
+    errorMsg.style.display = 'none';
+
+    // BMR
+    let bmr;
+    if(gender === 'male'){
+      bmr = 10*weight + 6.25*height - 5*age + 5;
+    } else {
+      bmr = 10*weight + 6.25*height - 5*age - 161;
+    }
+
+    // TDEE
+    const tdee = bmr * activity;
+
+    // Target intake
+    const target = (tdee - deficit) * 1.1;
+
+    // Macros
+    const carbG = (target * 0.4) / 4;
+    const proteinG = (target * 0.4) / 4;
+    const fatG = (target * 0.2) / 9;
+
+    const carbFood = carbG / 0.75;
+    const proteinFood = proteinG / 0.2;
+
+    // Render
+    document.getElementById('r-bmr').innerHTML = round(bmr) + '<span class="s-unit"> kcal</span>';
+    document.getElementById('r-tdee').innerHTML = round(tdee) + '<span class="s-unit"> kcal</span>';
+    document.getElementById('r-target').innerHTML = round(target) + '<span class="s-unit"> kcal</span>';
+
+    document.getElementById('r-carb').innerHTML = round(carbG) + '<span class="m-unit"> g</span>';
+    document.getElementById('r-protein').innerHTML = round(proteinG) + '<span class="m-unit"> g</span>';
+    document.getElementById('r-fat').innerHTML = round(fatG) + '<span class="m-unit"> g</span>';
+
+    document.getElementById('r-carb-food').textContent = round(carbFood);
+    document.getElementById('r-protein-food').textContent = round(proteinFood);
+
+    // Deficit warning: not advised to exceed 15% of TDEE
+    const ratio = deficit / tdee;
+    if(ratio > 0.15){
+      warnBanner.style.display = 'block';
+      warnBanner.textContent = '你选择的缺口约为每日总消耗的 ' + (ratio*100).toFixed(1) + '%，超过了建议的 15% 上限，请考虑适当调低。';
+    } else {
+      warnBanner.style.display = 'none';
+    }
+
+    results.style.display = 'block';
+    results.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+})();
+</script>
+
+</body>
+</html>
